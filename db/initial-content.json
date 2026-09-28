@@ -1,0 +1,188 @@
+{
+  "lessons": [
+    {
+      "title": "Primeiros passos no Word",
+      "goal": "Criar, formatar e salvar seu primeiro documento.",
+      "blocks": [
+        [
+          "0–10 min",
+          "Conhecer a interface e criar um documento"
+        ],
+        [
+          "10–25 min",
+          "Digitar, selecionar, copiar e desfazer"
+        ],
+        [
+          "25–40 min",
+          "Fonte, tamanho, destaque e alinhamento"
+        ],
+        [
+          "40–50 min",
+          "Criar listas com marcadores e números"
+        ],
+        [
+          "50–60 min",
+          "Salvar em DOCX e exportar PDF"
+        ]
+      ],
+      "task": "Escreva uma apresentação pessoal, formate o título e salve Aula01_Apresentacao.docx e PDF."
+    },
+    {
+      "title": "Documentos profissionais",
+      "goal": "Organizar um documento com estilos, imagens, cabeçalho e rodapé.",
+      "blocks": [
+        [
+          "0–10 min",
+          "Revisar a aula anterior"
+        ],
+        [
+          "10–20 min",
+          "Ajustar parágrafos e espaçamentos"
+        ],
+        [
+          "20–30 min",
+          "Aplicar estilos de título e texto"
+        ],
+        [
+          "30–40 min",
+          "Inserir cabeçalho, rodapé e página"
+        ],
+        [
+          "40–50 min",
+          "Inserir e posicionar imagens"
+        ],
+        [
+          "50–60 min",
+          "Produzir um comunicado interno"
+        ]
+      ],
+      "task": "Crie um comunicado com título, lista, imagem, cabeçalho e rodapé. Salve como Aula02_Comunicado.docx."
+    },
+    {
+      "title": "Recursos avançados",
+      "goal": "Usar tabelas, buscas, sumário automático e revisão.",
+      "blocks": [
+        [
+          "0–15 min",
+          "Criar e formatar tabelas"
+        ],
+        [
+          "15–25 min",
+          "Localizar e substituir palavras"
+        ],
+        [
+          "25–35 min",
+          "Usar quebras de página e margens"
+        ],
+        [
+          "35–45 min",
+          "Montar um sumário automático"
+        ],
+        [
+          "45–55 min",
+          "Revisar com comentários e alterações"
+        ],
+        [
+          "55–60 min",
+          "Desafio: mini relatório"
+        ]
+      ],
+      "task": "Monte um mini relatório com capa, tabela, imagem, páginas numeradas e sumário."
+    },
+    {
+      "title": "Word na nuvem",
+      "goal": "Guardar, abrir, compartilhar e editar documentos em colaboração.",
+      "blocks": [
+        [
+          "0–10 min",
+          "Entender o que é armazenamento na nuvem"
+        ],
+        [
+          "10–20 min",
+          "Criar pastas e enviar arquivo ao OneDrive"
+        ],
+        [
+          "20–30 min",
+          "Editar pelo Word no navegador"
+        ],
+        [
+          "30–40 min",
+          "Compartilhar com permissão de visualização ou edição"
+        ],
+        [
+          "40–50 min",
+          "Colaborar e consultar versões"
+        ],
+        [
+          "50–60 min",
+          "Exercício de compartilhamento"
+        ]
+      ],
+      "task": "Crie um documento no OneDrive, compartilhe com leitura, depois altere para edição e abra no Word Online."
+    },
+    {
+      "title": "Word + Inteligência Artificial",
+      "goal": "Criar, revisar e resumir textos com IA, aplicando revisão humana.",
+      "blocks": [
+        [
+          "0–10 min",
+          "Conhecer a IA generativa"
+        ],
+        [
+          "10–20 min",
+          "Escrever prompts com contexto, tarefa, formato e tom"
+        ],
+        [
+          "20–30 min",
+          "Criar um modelo de relatório e organizar no Word"
+        ],
+        [
+          "30–40 min",
+          "Revisar e adaptar a escrita"
+        ],
+        [
+          "40–50 min",
+          "Resumir, simplificar e transformar textos"
+        ],
+        [
+          "50–55 min",
+          "Conferir dados e proteger informações"
+        ],
+        [
+          "55–60 min",
+          "Projeto final"
+        ]
+      ],
+      "task": "Produza um relatório mensal de aproximadamente 3 páginas. Use IA como apoio, revise, salve em DOCX e PDF e compartilhe pelo OneDrive."
+    }
+  ],
+  "questions": [
+    {
+      "q": "Qual recurso organiza títulos para criar um sumário automático?",
+      "options": [
+        "Estilos",
+        "Cor da fonte",
+        "Zoom"
+      ],
+      "correct": 0
+    },
+    {
+      "q": "Ao compartilhar um documento para leitura, qual permissão usar?",
+      "options": [
+        "Pode editar",
+        "Pode visualizar",
+        "Controle de alterações"
+      ],
+      "correct": 1
+    },
+    {
+      "q": "O que fazer antes de usar um texto gerado por IA?",
+      "options": [
+        "Publicar imediatamente",
+        "Conferir conteúdo e informações",
+        "Apagar a versão original"
+      ],
+      "correct": 1
+    }
+  ]
+}
