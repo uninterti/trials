@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Trials · Ambiente de aprendizagem",
-  description: "Cursos de Office com aulas e avaliações práticas.",
+  title: "Professor Toni · Ambiente de aprendizagem",
+  description: "Ambiente de aprendizagem Professor Toni: cursos de Office, Word, Excel e PowerPoint.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

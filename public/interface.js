@@ -372,7 +372,7 @@ async function handleDeleteStudent(id, name) {
 function copyStudentWhatsApp(student) {
   if (!student) return;
   const origin = window.location.origin;
-  const text = `Olá, *${student.name}*! 👋\n\nSeus dados de acesso ao ambiente *Trials* já estão ativos:\n\n🌐 *Link:* ${origin}\n📱 *Login (Telefone):* ${student.phone}\n🔑 *Senha:* ${student.initialPassword || student.initial_password || 'Sua senha'}\n📚 *Curso:* ${student.courseTitle || student.course_title || student.course_id || 'Trials'}\n\nBons estudos! 🚀`;
+  const text = `Olá, *${student.name}*! 👋\n\nSeus dados de acesso ao ambiente *Professor Toni* já estão ativos:\n\n🌐 *Link:* ${origin}\n📱 *Login (Telefone):* ${student.phone}\n🔑 *Senha:* ${student.initialPassword || student.initial_password || 'Sua senha'}\n📚 *Curso:* ${student.courseTitle || student.course_title || student.course_id || 'Professor Toni'}\n\nBons estudos! 🚀`;
 
   navigator.clipboard.writeText(text).then(() => {
     alert('✅ Mensagem copiada com sucesso! Você pode colar diretamente no WhatsApp do aluno.');
