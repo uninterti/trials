@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import initial from "./initial-content.json";
+import lessonOne from "./lesson-one.json";
 
 export function database() {
   if (!env.DB) throw new Error("Banco de dados indisponível");
@@ -21,4 +22,11 @@ export async function seedInitialContent() {
   initial.lessons.forEach((lesson, i) => statements.push(db.prepare("INSERT OR IGNORE INTO lessons (id,course_id,title,goal,blocks,task,duration_minutes,sort_order) VALUES (?,?,?,?,?,?,?,?)").bind(`word-${i + 1}`, "word", lesson.title, lesson.goal, JSON.stringify(lesson.blocks), lesson.task, 60, i + 1)));
   initial.questions.forEach((question, i) => statements.push(db.prepare("INSERT OR IGNORE INTO questions (id,course_id,prompt,options,correct_option,sort_order) VALUES (?,?,?,?,?,?)").bind(`word-q${i + 1}`, "word", question.q, JSON.stringify(question.options), question.correct, i + 1)));
   await db.batch(statements);
+}
+
+export async function seedLessonOneContent() {
+  await seedInitialContent();
+  const db = database();
+  await db.prepare("INSERT OR IGNORE INTO lesson_content (lesson_id,content) VALUES (?,?)")
+    .bind("word-1", JSON.stringify(lessonOne)).run();
 }

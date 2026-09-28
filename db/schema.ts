@@ -20,6 +20,11 @@ export const lessons = sqliteTable("lessons", {
   sortOrder: integer("sort_order").notNull(),
 }, (table) => [index("idx_lessons_course_order").on(table.courseId, table.sortOrder)]);
 
+export const lessonContent = sqliteTable("lesson_content", {
+  lessonId: text("lesson_id").primaryKey().references(() => lessons.id),
+  content: text("content").notNull(),
+});
+
 export const questions = sqliteTable("questions", {
   id: text("id").primaryKey(),
   courseId: text("course_id").notNull().references(() => courses.id),

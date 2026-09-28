@@ -1,0 +1,53 @@
+{
+  "intro": "Nesta aula você vai conhecer o Word criando um documento de verdade: uma apresentação pessoal. Não é preciso memorizar todos os botões. Primeiro você observa, depois repete e, por fim, faz sozinho.",
+  "outcome": "Ao terminar, você terá uma apresentação pessoal formatada e salva em DOCX e PDF.",
+  "sections": [
+    {
+      "time": "0–10 min",
+      "title": "Conheça a interface e crie um documento",
+      "explanation": "O Word é um editor de textos. Ele serve para criar cartas, currículos, relatórios e outros documentos. A folha branca no centro é a área onde você escreve. Na parte de cima ficam as guias: Arquivo reúne opções para abrir, salvar e imprimir; Página Inicial traz as ferramentas de texto; Inserir permite adicionar imagens e tabelas. Você conhecerá as outras guias aos poucos.",
+      "steps": ["Abra o Microsoft Word.", "Escolha Documento em branco.", "Clique na folha e digite a frase abaixo."],
+      "example": "Meu primeiro documento no Microsoft Word.",
+      "practice": "Experimente clicar nas guias Arquivo, Página Inicial e Inserir. Observe as opções e volte para Página Inicial.",
+      "tip": "Se clicar em algo por engano, use Ctrl + Z para desfazer."
+    },
+    {
+      "time": "10–25 min",
+      "title": "Digite, selecione e corrija o texto",
+      "explanation": "Digite normalmente e use Enter apenas quando quiser iniciar um novo parágrafo. Backspace apaga o caractere anterior; Delete apaga o seguinte. Para mudar uma palavra, selecione o trecho com o mouse ou com Shift e as setas do teclado. Copiar cria outra versão do texto; recortar tira o trecho do lugar para colá-lo em outro ponto.",
+      "steps": ["Abaixo da primeira frase, digite o título Apresentação pessoal.", "Escreva seu nome, cidade e por que quer aprender informática.", "Selecione uma frase, copie com Ctrl + C e cole com Ctrl + V em outra linha.", "Desfaça com Ctrl + Z e refaça com Ctrl + Y."],
+      "example": "APRESENTAÇÃO PESSOAL\nMeu nome é ________.\nMoro em ________.\nAtualmente trabalho ou estudo ________.\nEstou aprendendo informática para ________.",
+      "practice": "Corrija uma palavra de propósito, recorte uma frase com Ctrl + X e cole novamente no lugar certo.",
+      "tip": "Atalhos desta etapa: Ctrl + C copia; Ctrl + V cola; Ctrl + X recorta; Ctrl + Z desfaz; Ctrl + Y refaz; Ctrl + A seleciona tudo."
+    },
+    {
+      "time": "25–40 min",
+      "title": "Formate o título e os parágrafos",
+      "explanation": "Formatar é mudar a aparência do texto sem alterar o que ele diz. Primeiro selecione o trecho; depois escolha fonte, tamanho, cor ou destaque na guia Página Inicial. Negrito dá ênfase, itálico diferencia uma palavra e sublinhado marca um trecho. O alinhamento organiza o texto à esquerda, ao centro, à direita ou nas duas margens.",
+      "steps": ["Selecione APRESENTAÇÃO PESSOAL.", "Defina tamanho 18, aplique negrito e centralize o título.", "Selecione os parágrafos e deixe o corpo em tamanho 11 ou 12, alinhado à esquerda.", "Destaque seu nome em negrito e teste uma cor ou marca-texto em uma palavra."],
+      "example": "Título: APRESENTAÇÃO PESSOAL — tamanho 18, negrito e centralizado.\nTexto: tamanho 11 ou 12, alinhado à esquerda.",
+      "practice": "Compare o documento antes e depois. O título se destaca? O corpo do texto continua fácil de ler?",
+      "tip": "Para alterar apenas uma palavra, selecione só essa palavra antes de clicar na formatação."
+    },
+    {
+      "time": "40–50 min",
+      "title": "Organize informações em listas",
+      "explanation": "Uma lista com marcadores ajuda a reunir itens sem ordem obrigatória. Uma lista numerada é útil quando a sequência importa, como em instruções ou etapas de uma rotina. Use os botões de marcadores e numeração na guia Página Inicial; não é necessário digitar cada símbolo ou número manualmente.",
+      "steps": ["Escreva o subtítulo Minhas ferramentas favoritas.", "Em linhas separadas, digite Word, YouTube, Google e WhatsApp; selecione essas linhas e aplique marcadores.", "Escreva o subtítulo Minha rotina e adicione Acordar, Trabalhar, Estudar e Descansar.", "Selecione as quatro etapas da rotina e aplique numeração."],
+      "example": "Minhas ferramentas favoritas\n• Word\n• YouTube\n• Google\n• WhatsApp\n\nMinha rotina\n1. Acordar\n2. Trabalhar\n3. Estudar\n4. Descansar",
+      "practice": "Acrescente mais um item em cada lista e veja o Word atualizar a sequência numerada.",
+      "tip": "Use marcadores para conjuntos de itens e numeração quando precisar mostrar uma ordem."
+    },
+    {
+      "time": "50–60 min",
+      "title": "Salve em DOCX e exporte para PDF",
+      "explanation": "Salvar guarda o trabalho para você continuar depois. Salvar como permite escolher nome, pasta ou formato diferente. DOCX é o formato de edição do Word; PDF mantém a aparência do documento ao compartilhar ou imprimir. Guarde os dois: um para editar e outro para enviar.",
+      "steps": ["Crie uma pasta chamada Curso Word dentro de Documentos.", "No Word, escolha Arquivo > Salvar como e selecione essa pasta.", "Salve o arquivo com o nome Aula01_Apresentacao.docx.", "Use Arquivo > Exportar ou Salvar como para gerar Aula01_Apresentacao.pdf.", "Abra a pasta e confirme que os dois arquivos estão lá."],
+      "example": "Documentos / Curso Word / Aula01_Apresentacao.docx\nDocumentos / Curso Word / Aula01_Apresentacao.pdf",
+      "practice": "Abra o PDF e confira se o título, os parágrafos e as listas aparecem corretamente.",
+      "tip": "Ctrl + S salva rapidamente alterações no documento que já tem um nome e uma pasta."
+    }
+  ],
+  "finalTask": "Entregue uma apresentação pessoal com título centralizado, texto corrigido, uma lista com marcadores e outra numerada. Salve os arquivos DOCX e PDF na pasta Curso Word.",
+  "checklist": ["Criei e corrigi minha apresentação pessoal.", "Formatei o título e os parágrafos.", "Usei marcadores e numeração.", "Encontrei os arquivos DOCX e PDF na pasta Curso Word."]
+}
