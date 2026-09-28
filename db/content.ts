@@ -1,14 +1,99 @@
 import { env } from "cloudflare:workers";
 import initial from "./initial-content.json";
 import lessonOne from "./lesson-one.json";
+import { hashPassword } from "@/lib/auth";
 
 export function database() {
   if (!env.DB) throw new Error("Banco de dados indisponível");
   return env.DB;
 }
 
-export async function seedInitialContent() {
+export async function ensureTablesExist() {
   const db = database();
+  await db.batch([
+    db.prepare(`CREATE TABLE IF NOT EXISTS courses (
+      id text PRIMARY KEY NOT NULL,
+      title text NOT NULL,
+      description text NOT NULL,
+      status text NOT NULL,
+      icon text NOT NULL,
+      sort_order integer NOT NULL
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS lessons (
+      id text PRIMARY KEY NOT NULL,
+      course_id text NOT NULL,
+      title text NOT NULL,
+      goal text NOT NULL,
+      blocks text NOT NULL,
+      task text NOT NULL,
+      duration_minutes integer NOT NULL,
+      sort_order integer NOT NULL,
+      FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE no action ON DELETE no action
+    )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_lessons_course_order ON lessons (course_id, sort_order)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS questions (
+      id text PRIMARY KEY NOT NULL,
+      course_id text NOT NULL,
+      prompt text NOT NULL,
+      options text NOT NULL,
+      correct_option integer NOT NULL,
+      sort_order integer NOT NULL,
+      FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE no action ON DELETE no action
+    )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_questions_course_order ON questions (course_id, sort_order)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS assessment_attempts (
+      id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+      user_id text NOT NULL,
+      course_id text NOT NULL,
+      score integer NOT NULL,
+      total integer NOT NULL,
+      created_at text NOT NULL,
+      FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE no action ON DELETE no action
+    )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_attempts_user_course ON assessment_attempts (user_id, course_id)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS lesson_content (
+      lesson_id text PRIMARY KEY NOT NULL,
+      content text NOT NULL,
+      FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON UPDATE no action ON DELETE no action
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS users (
+      id text PRIMARY KEY NOT NULL,
+      name text NOT NULL,
+      phone text NOT NULL UNIQUE,
+      role text NOT NULL,
+      password_hash text NOT NULL,
+      initial_password text,
+      course_id text,
+      created_at text NOT NULL,
+      FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE no action ON DELETE no action
+    )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_users_phone ON users (phone)`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_users_role ON users (role)`),
+  ]);
+}
+
+export async function seedInitialContent() {
+  await ensureTablesExist();
+  const db = database();
+
+  // Seed default professor user if not exists
+  const existingProf = await db.prepare("SELECT id FROM users WHERE role = 'professor'").first();
+  if (!existingProf) {
+    const profHash = await hashPassword("admin");
+    await db.prepare(
+      "INSERT OR IGNORE INTO users (id, name, phone, role, password_hash, initial_password, course_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    ).bind(
+      "prof-1",
+      "Professor Toni",
+      "professor",
+      "professor",
+      profHash,
+      "admin",
+      null,
+      new Date().toISOString()
+    ).run();
+  }
+
   const current = await db.prepare("SELECT id FROM courses WHERE id = ?").bind("word").first();
   if (current) return;
 
@@ -30,3 +115,4 @@ export async function seedLessonOneContent() {
   await db.prepare("INSERT OR IGNORE INTO lesson_content (lesson_id,content) VALUES (?,?)")
     .bind("word-1", JSON.stringify(lessonOne)).run();
 }
+
