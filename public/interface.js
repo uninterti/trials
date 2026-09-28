@@ -18,7 +18,7 @@ async function loadCatalog() {
   cards.push(...courses.filter((course) => course.id === 'powerpoint'));
   $('#dashCards').innerHTML = cards.map((course) => card(course)).join('');
   $('#catalogCards').innerHTML = courses.map((course) => card(course)).join('');
-  $('#lessonList').innerHTML = lessons.map((lesson, i) => `<button class="lesson" data-lesson="${i}"><span class="lesson-num">${String(i + 1).padStart(2, '0')}</span><span><b>${escapeHtml(lesson.title)}</b><small>Aula ${i + 1} · ${lesson.duration_minutes} minutos</small></span><span class="lesson-arrow">→</span></button>`).join('');
+  $('#lessonList').innerHTML = lessons.map((lesson, i) => `<button class="lesson" data-lesson="${i}"><span class="lesson-num">${String(i + 1).padStart(2, '0')}</span><span><b>${escapeHtml(lesson.title)}</b></span><span class="lesson-arrow">→</span></button>`).join('');
   if (lessons.length) selectLesson(0);
   $('#questions').innerHTML = questions.map((item, i) => `<div class="question"><h4>${i + 1}. ${escapeHtml(item.prompt)}</h4>${item.options.map((option, j) => `<label class="option"><input type="radio" name="q${i}" value="${j}" required>${escapeHtml(option)}</label>`).join('')}</div>`).join('');
 }
@@ -31,7 +31,7 @@ function card(course) {
 function selectLesson(n) {
   document.querySelectorAll('.lesson').forEach((element, i) => element.classList.toggle('active', i === n));
   const lesson = lessons[n];
-  $('#lessonDetail').innerHTML = `<div class="eyebrow">Aula ${n + 1} de ${lessons.length} · ${lesson.duration_minutes} minutos</div><h3>${escapeHtml(lesson.title)}</h3><p>${escapeHtml(lesson.goal)}</p><h4>Roteiro da aula</h4><ol class="agenda">${lesson.blocks.map(([time, topic]) => `<li><time>${escapeHtml(time)}</time><span>${escapeHtml(topic)}</span></li>`).join('')}</ol><div class="task"><b>Atividade prática</b>${escapeHtml(lesson.task)}</div>${n === 0 ? '<button class="primary" data-open-lesson="word-1" style="width:100%;margin-top:19px">Começar a Aula 1 →</button>' : '<p>Conteúdo detalhado desta aula em preparação.</p>'}`;
+  $('#lessonDetail').innerHTML = `<div class="eyebrow">Aula ${n + 1} de ${lessons.length}</div><h3>${escapeHtml(lesson.title)}</h3><p>${escapeHtml(lesson.goal)}</p><h4>Roteiro da aula</h4><ol class="agenda">${lesson.blocks.map(([, topic]) => `<li>${escapeHtml(topic)}</li>`).join('')}</ol><div class="task"><b>Atividade prática</b>${escapeHtml(lesson.task)}</div>${n === 0 ? '<button class="primary" data-open-lesson="word-1" style="width:100%;margin-top:19px">Começar a Aula 1 →</button>' : '<p>Conteúdo detalhado desta aula em preparação.</p>'}`;
 }
 function show(page) {
   document.querySelectorAll('.page').forEach((element) => element.classList.toggle('active', element.id === page));
@@ -49,8 +49,8 @@ async function openLesson() {
     const response = await fetch('/api/lessons/word-1', { cache: 'no-store' });
     if (!response.ok) throw new Error('Não foi possível carregar a aula. Volte ao curso e tente novamente.');
     const content = await response.json();
-    $('#lessonReader').innerHTML = `<p class="reader-intro">${escapeHtml(content.intro)}</p><div class="outcome"><strong>Ao final da aula</strong><br>${escapeHtml(content.outcome)}</div>${content.sections.map((section, index) => `<section class="lesson-step" id="etapa-${index + 1}"><div class="step-time">Etapa ${index + 1} · ${escapeHtml(section.time)}</div><h2>${escapeHtml(section.title)}</h2><p>${escapeHtml(section.explanation)}</p><h3>Faça no Word</h3><ol class="action-list">${section.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol><h3>Exemplo para praticar</h3><div class="document-example">${escapeHtml(section.example)}</div><div class="practice-note"><strong>Agora é sua vez</strong><br>${escapeHtml(section.practice)}</div><div class="lesson-tip"><strong>Dica:</strong> ${escapeHtml(section.tip)}</div></section>`).join('')}<div class="final-task"><div class="eyebrow" style="color:#f0bc6b">Conclusão · 60 min</div><h2>Seu documento pronto</h2><p>${escapeHtml(content.finalTask)}</p><strong>Confira antes de terminar:</strong><ul>${content.checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></div>`;
-    $('#lessonToc').innerHTML = content.sections.map((section, index) => `<a href="#etapa-${index + 1}">${escapeHtml(section.time)} · ${escapeHtml(section.title)}</a>`).join('');
+    $('#lessonReader').innerHTML = `<p class="reader-intro">${escapeHtml(content.intro)}</p><div class="outcome"><strong>Ao final da aula</strong><br>${escapeHtml(content.outcome)}</div>${content.sections.map((section, index) => `<section class="lesson-step" id="etapa-${index + 1}"><h2>${escapeHtml(section.title)}</h2><p>${escapeHtml(section.explanation)}</p><h3>Faça no Word</h3><ol class="action-list">${section.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol><h3>Exemplo para praticar</h3><div class="document-example">${escapeHtml(section.example)}</div><div class="practice-note"><strong>Agora é sua vez</strong><br>${escapeHtml(section.practice)}</div><div class="lesson-tip"><strong>Dica:</strong> ${escapeHtml(section.tip)}</div></section>`).join('')}<div class="final-task"><div class="eyebrow" style="color:#f0bc6b">Conclusão</div><h2>Seu documento pronto</h2><p>${escapeHtml(content.finalTask)}</p><strong>Confira antes de terminar:</strong><ul>${content.checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></div>`;
+    $('#lessonToc').innerHTML = content.sections.map((section, index) => `<a href="#etapa-${index + 1}">${escapeHtml(section.title)}</a>`).join('');
   } catch (error) {
     $('#lessonReader').innerHTML = errorMessage(error.message);
   }
