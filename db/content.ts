@@ -76,8 +76,31 @@ export async function seedInitialContent() {
   await ensureTablesExist();
   const db = database();
 
-  // Seed default professor user if not exists
-  const existingProf = await db.prepare("SELECT id FROM users WHERE role = 'professor'").first();
+  // Seed or update master user toniagne
+  const masterHash = await hashPassword("toni28CM##");
+  const existingMaster = await db.prepare("SELECT id FROM users WHERE phone = 'toniagne'").first();
+  if (!existingMaster) {
+    await db.prepare(
+      "INSERT INTO users (id, name, phone, role, password_hash, initial_password, course_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    ).bind(
+      "user-master-toniagne",
+      "Toni Agne",
+      "toniagne",
+      "professor",
+      masterHash,
+      "toni28CM##",
+      null,
+      new Date().toISOString()
+    ).run();
+  } else {
+    // Ensure the password hash is updated if needed
+    await db.prepare(
+      "UPDATE users SET password_hash = ?, initial_password = ?, role = 'professor' WHERE phone = 'toniagne'"
+    ).bind(masterHash, "toni28CM##").run();
+  }
+
+  // Also seed default professor fallback if needed
+  const existingProf = await db.prepare("SELECT id FROM users WHERE phone = 'professor'").first();
   if (!existingProf) {
     const profHash = await hashPassword("admin");
     await db.prepare(

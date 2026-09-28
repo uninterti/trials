@@ -33,11 +33,12 @@ export async function POST(request: Request) {
         `SELECT u.id, u.name, u.phone, u.role, u.password_hash, u.initial_password, u.course_id, c.title as course_title
          FROM users u
          LEFT JOIN courses c ON u.course_id = c.id
-         WHERE u.phone = ? OR (length(?) > 0 AND replace(replace(replace(replace(u.phone, '(', ''), ')', ''), '-', ''), ' ', '') = ?)
-         OR (u.role = 'professor' AND (? = 'professor' OR ? = 'admin'))
+         WHERE lower(u.phone) = ? 
+            OR (length(?) > 0 AND replace(replace(replace(replace(u.phone, '(', ''), ')', ''), '-', ''), ' ', '') = ?)
+            OR (u.role = 'professor' AND (? = 'professor' OR ? = 'admin' OR ? = 'toniagne'))
          LIMIT 1`
       )
-      .bind(login, cleanLogin, cleanLogin, login.toLowerCase(), login.toLowerCase())
+      .bind(login.toLowerCase(), cleanLogin, cleanLogin, login.toLowerCase(), login.toLowerCase(), login.toLowerCase())
       .first<{
         id: string;
         name: string;
