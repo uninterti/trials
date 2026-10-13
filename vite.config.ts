@@ -4,20 +4,19 @@ import hostingConfig from "./.openai/hosting.json";
 import { readExecutionProfile } from "./scripts/execution-profile.mjs";
 import { sites } from "./build/sites-vite-plugin";
 
-const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
-  "00000000-0000-4000-8000-000000000000";
+// Preserve the existing local D1 state. Hosted bindings are provisioned by Sites.
+const LOCAL_D1_DATABASE_ID = "76820b9e-2c95-450d-93a1-9f90e62b779f";
+const LOCAL_D1_DATABASE_NAME = "professor-toni";
 
 const { d1, r2 } = hostingConfig;
 const d1DatabaseId =
   process.env.CLOUDFLARE_D1_DATABASE_ID ||
   process.env.D1_DATABASE_ID ||
-  (hostingConfig as any).database_id ||
-  SITE_CREATOR_PLACEHOLDER_DATABASE_ID;
+  LOCAL_D1_DATABASE_ID;
 const d1DatabaseName =
   process.env.CLOUDFLARE_D1_DATABASE_NAME ||
   process.env.D1_DATABASE_NAME ||
-  (hostingConfig as any).database_name ||
-  "site-creator-d1";
+  LOCAL_D1_DATABASE_NAME;
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
