@@ -48,6 +48,7 @@ async function checkAuth() {
 function applyUserUI() {
   if (!currentUser) return;
   const isProf = currentUser.role === 'professor';
+  $('#navWorks').classList.toggle('hidden', isProf);
   
   $('#topbarUserName').textContent = currentUser.name || (isProf ? 'Professor' : 'Aluno');
   $('#topbarAvatar').textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
@@ -128,6 +129,7 @@ async function handleLogout() {
     console.error('Logout error', err);
   }
   currentUser = null;
+  resetWorkUI();
   $('#app').classList.add('hidden');
   $('#login').classList.remove('hidden');
   location.hash = '';
@@ -196,12 +198,15 @@ function selectLesson(n) {
 
 function show(page) {
   // Protect students area from non-professors
-  if (page === 'students' && currentUser?.role !== 'professor') {
+  if (['students', 'performance'].includes(page) && currentUser?.role !== 'professor') {
     page = 'dashboard';
   }
 
+  if (['works', 'workQuiz'].includes(page) && currentUser?.role !== 'aluno') page = 'performance';
+  if (page === 'workQuiz' && !activeWorkAttempt) page = 'works';
+  if (!document.getElementById(page)?.classList.contains('page')) page = 'dashboard';
   document.querySelectorAll('.page').forEach((el) => el.classList.toggle('active', el.id === page));
-  document.querySelectorAll('.nav button').forEach((el) => el.classList.toggle('active', el.dataset.page === page || (page === 'word' && el.dataset.page === 'courses')));
+  document.querySelectorAll('.nav button').forEach((el) => el.classList.toggle('active', el.dataset.page === page || (page === 'word' && el.dataset.page === 'courses') || (page === 'performance' && el.dataset.page === 'students') || (page === 'workQuiz' && el.dataset.page === 'works')));
   
   const crumbs = {
     dashboard: 'Dashboard',
@@ -210,6 +215,9 @@ function show(page) {
     lesson: 'Word / Aula 1',
     assessments: 'Avaliações',
     students: 'Painel do Professor / Alunos',
+    performance: 'Alunos / Desempenho',
+    works: 'Meus trabalhos',
+    workQuiz: 'Meus trabalhos / Responder',
   };
   $('#crumb').textContent = crumbs[page] || 'Dashboard';
   location.hash = page;
@@ -217,6 +225,8 @@ function show(page) {
 
   if (page === 'assessments') loadHistory();
   if (page === 'students') loadStudents();
+  if (page === 'performance') loadPerformanceArea();
+  if (page === 'works') loadStudentWorks();
 }
 
 async function openLesson() {
@@ -284,6 +294,7 @@ function renderStudentsTable(list) {
         <td><span class="pass-badge">${escapeHtml(pass)}</span></td>
         <td>${escapeHtml(formattedDate)}</td>
         <td style="text-align: right; white-space: nowrap;">
+          <button type="button" class="btn-action-copy" data-performance-student="${escapeHtml(st.id)}">Desempenho / Trabalhos</button>
           <button type="button" class="btn-action-copy" data-copy-access="${escapeHtml(st.id)}">📋 Copiar Acesso</button>
           <button type="button" class="btn-action-delete" data-delete-student="${escapeHtml(st.id)}" data-name="${escapeHtml(st.name)}">🗑 Excluir</button>
         </td>
@@ -353,7 +364,7 @@ async function handleCreateStudent(event) {
 }
 
 async function handleDeleteStudent(id, name) {
-  if (!confirm(`Tem certeza que deseja excluir o cadastro do aluno "${name}"? O acesso será revogado.`)) {
+  if (!confirm(`Tem certeza que deseja excluir o cadastro do aluno "${name}"? O acesso, os trabalhos liberados e o histórico de notas serão removidos.`)) {
     return;
   }
 

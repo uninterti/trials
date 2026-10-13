@@ -36,9 +36,10 @@ export async function POST(request: Request) {
          WHERE lower(u.phone) = ? 
             OR (length(?) > 0 AND replace(replace(replace(replace(u.phone, '(', ''), ')', ''), '-', ''), ' ', '') = ?)
             OR (u.role = 'professor' AND (? = 'professor' OR ? = 'admin' OR ? = 'toniagne'))
+         ORDER BY CASE WHEN lower(u.phone) = ? THEN 0 ELSE 1 END, u.id
          LIMIT 1`
       )
-      .bind(login.toLowerCase(), cleanLogin, cleanLogin, login.toLowerCase(), login.toLowerCase(), login.toLowerCase())
+      .bind(login.toLowerCase(), cleanLogin, cleanLogin, login.toLowerCase(), login.toLowerCase(), login.toLowerCase(), login.toLowerCase())
       .first<{
         id: string;
         name: string;

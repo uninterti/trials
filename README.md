@@ -1,4 +1,11 @@
-# vinext-starter
+# Professor Toni
+
+Ambiente de aprendizagem com cursos, aulas, avaliações e gestão de alunos.
+
+- [Trabalhos individuais e relatório de desempenho](docs/trabalhos.md): liberação por aluno, W-A1 de Word com 10 questões, notas e histórico de tentativas.
+- [Spec de compreensão das tarefas no chat](docs/specs/compreensao-tarefas-chat.md).
+
+# Base técnica: vinext-starter
 
 A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
 

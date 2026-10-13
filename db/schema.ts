@@ -1,4 +1,5 @@
-import { integer, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+import { integer, sqliteTable, text, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const courses = sqliteTable("courses", {
   id: text("id").primaryKey(),
@@ -57,3 +58,25 @@ export const users = sqliteTable("users", {
   index("idx_users_role").on(table.role),
 ]);
 
+export const workAssignments = sqliteTable("work_assignments", {
+  id: text("id").primaryKey(),
+  workId: text("work_id").notNull(),
+  studentId: text("student_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  releasedBy: text("released_by").references(() => users.id, { onDelete: "set null" }),
+  releasedAt: text("released_at").notNull(),
+}, (table) => [uniqueIndex("idx_work_student").on(table.workId, table.studentId)]);
+
+export const workAttempts = sqliteTable("work_attempts", {
+  id: text("id").primaryKey(),
+  assignmentId: text("assignment_id").notNull().references(() => workAssignments.id, { onDelete: "cascade" }),
+  workVersion: integer("work_version").notNull(),
+  questions: text("questions").notNull(),
+  answers: text("answers"),
+  score: integer("score"),
+  total: integer("total").notNull(),
+  startedAt: text("started_at").notNull(),
+  submittedAt: text("submitted_at"),
+}, (table) => [
+  index("idx_work_attempts_assignment").on(table.assignmentId, table.submittedAt),
+  uniqueIndex("idx_work_active_attempt").on(table.assignmentId).where(sql`${table.submittedAt} IS NULL`),
+]);
