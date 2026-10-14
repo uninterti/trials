@@ -65,3 +65,19 @@ node --check public/work-management.js
 ```
 
 Os testes HTTP exigem a aplicação local e as migrações aplicadas. Não aceitam hosts de produção. Criam dados temporários e os removem ao terminar. Cobrem permissões, validação, associações por curso, edição concorrente, rascunhos, congelamento das liberações, compatibilidade do W-A1 e trabalhos de Excel, além da regressão de notas e tentativas.
+
+## Simulador do professor
+
+Em **Gestão de trabalhos → Trabalhos → Simular**, o professor responde ao mesmo questionário apresentado ao aluno. O botão está disponível para trabalhos salvos com dez questões. Ao entregar, aparecem a nota de zero a dez e o gabarito comentado. **Refazer com questões embaralhadas** inicia uma nova simulação com a ordem alterada.
+
+A simulação usa a versão salva atual do cadastro. Liberações anteriores continuam usando suas próprias cópias, que podem ter conteúdo diferente após uma edição. O questionário e o gabarito compartilham o renderizador do aluno; correção e embaralhamento compartilham `public/work-engine.js` com o servidor.
+
+Nenhuma liberação, tentativa, resposta ou nota é gravada. Os dados da simulação existem somente na memória da página e são descartados ao sair, atualizar ou encerrar a sessão. Não há alteração no relatório do aluno nem migração de banco para este recurso.
+
+Teste de navegador local (Chrome instalado e aplicação na porta 5173):
+
+```sh
+node tests/work-simulator.browser.mjs
+```
+
+Verifica apresentação idêntica das perguntas, preenchimento obrigatório, notas 0/7/10, gabarito, embaralhamento, descarte, layout móvel e ausência de requisições de gravação durante a simulação.

@@ -1,4 +1,6 @@
 let activeWorkAttempt = null;
+let workSimulationDefinition = null;
+let workSimulationEpoch = 0;
 let selectedPerformanceStudent = '';
 let performanceData = null;
 let availableWorks = [];
@@ -21,6 +23,7 @@ const workStatus = item => item.active_attempt_id ? 'Em andamento' : item.attemp
 
 function resetWorkUI() {
   resetWorkManagement();
+  clearWorkSimulation();
   workRequestEpoch++;
   studentWorksEpoch++;
   activeWorkAttempt = null;
@@ -147,17 +150,78 @@ async function openWork(button, review = false) {
   } finally { button.disabled = false; }
 }
 
+function clearWorkSimulation() {
+  workSimulationEpoch++;
+  workSimulationDefinition = null;
+  if (activeWorkAttempt?.simulation) {
+    activeWorkAttempt = null;
+    $('#workQuizQuestions').innerHTML = '';
+    $('#workQuizResult').innerHTML = '';
+    $('#workQuizFeedback').innerHTML = '';
+  }
+  $('#workSimulationNotice').classList.add('hidden');
+}
+
+async function openWorkSimulation(button, repeat = false) {
+  if (currentUser?.role !== 'professor') return;
+  const epoch = ++workSimulationEpoch;
+  const userId = currentUser.id;
+  const definition = repeat ? workSimulationDefinition : managementWorks.find(w => w.id === button.dataset.simulateWork);
+  if (!definition || definition.questions.length !== 10) return;
+  const snapshot = structuredClone(definition);
+  const previousIds = repeat ? (activeWorkAttempt?.questions || []).map(q => q.id) : [];
+  button.disabled = true;
+  try {
+    const { shuffledQuestions } = await import('/work-engine.js');
+    if (epoch !== workSimulationEpoch || currentUser?.id !== userId) return;
+    workSimulationDefinition = snapshot;
+    const { questions, ...work } = snapshot;
+    workSimulationDefinition.questions = shuffledQuestions(questions, previousIds);
+    activeWorkAttempt = {
+      id: `simulation-${crypto.randomUUID()}`, simulation: true,
+      work: { ...work, questionCount: questions.length, total: questions.length },
+      total: questions.length, score: null, submittedAt: null,
+      questions: workSimulationDefinition.questions.map(({ id, prompt, options }) => ({ id, prompt, options })),
+    };
+    renderWorkAttempt();
+    show('workQuiz');
+  } catch (error) {
+    if (epoch === workSimulationEpoch) {
+      const host = repeat ? $('#workQuizResult') : $('#managementFeedback');
+      const feedback = document.createElement('div');
+      feedback.innerHTML = errorMessage('Não foi possível abrir o simulador. Tente novamente.');
+      host.append(feedback);
+    }
+  } finally { button.disabled = false; }
+}
+
+async function simulatedResult(attempt, definition, answers) {
+  const { gradeAnswers } = await import('/work-engine.js');
+  const score = gradeAnswers(definition.questions, answers);
+  if (score === null) throw new Error('Responda às 10 questões com uma alternativa válida em cada uma.');
+  // In-memory result only: never call a persistence API or browser storage here.
+  return {
+    ...attempt, score, submittedAt: new Date().toISOString(),
+    questions: definition.questions.map(q => ({ ...q, selected: answers[q.id] })),
+  };
+}
+
 function renderWorkAttempt() {
   const a = activeWorkAttempt;
+  const simulation = Boolean(a.simulation);
+  $('#workSimulationNotice').classList.toggle('hidden', !simulation);
+  $('#workQuizBack').dataset.page = simulation ? 'workManagement' : 'works';
+  $('#workQuizBack').textContent = simulation ? '← Gestão de trabalhos' : '← Meus trabalhos';
+  $('#submitWorkButton').disabled = false;
   $('#workQuizMeta').textContent = `${a.work.courseTitle} · ${a.work.lessonTitle} · ${a.work.id}`;
   $('#workQuizTitle').textContent = a.work.title;
-  $('#workQuizDescription').textContent = a.submittedAt ? 'Confira sua nota e o gabarito comentado abaixo.' : 'Responda às 10 questões. Cada acerto vale 1 ponto. Suas respostas serão salvas ao entregar; sair ou atualizar antes disso descarta as marcações.';
+  $('#workQuizDescription').textContent = a.submittedAt ? 'Confira sua nota e o gabarito comentado abaixo.' : (simulation ? 'Responda às 10 questões. Cada acerto vale 1 ponto. Esta simulação não salva respostas nem notas.' : 'Responda às 10 questões. Cada acerto vale 1 ponto. Suas respostas serão salvas ao entregar; sair ou atualizar antes disso descarta as marcações.');
   $('#workQuizFeedback').innerHTML = '';
   $('#workQuizForm').classList.toggle('hidden', Boolean(a.submittedAt));
   $('#workQuizResult').innerHTML = '';
   if (a.submittedAt) {
     $('#workQuizQuestions').innerHTML = '';
-    $('#workQuizResult').innerHTML = `<div class="work-score"><span>Trabalho ${escapeHtml(a.work.id)} · ${escapeHtml(currentUser.name)}</span><strong>Nota ${a.score}/${a.total}</strong><p>Resultado salvo em ${workDate(a.submittedAt)}.</p></div><div class="work-actions"><button class="primary" data-start-work="${escapeHtml(a.assignmentId)}">Refazer com questões embaralhadas</button><button class="secondary" data-page="works">Voltar aos trabalhos</button></div><h2 class="section-title" style="margin-top:28px">Gabarito comentado</h2>${a.questions.map((q, i) => `<article class="work-review ${q.selected === q.correct ? 'correct' : 'incorrect'}"><h3>${i + 1}. ${escapeHtml(q.prompt)}</h3><p><strong>${q.selected === q.correct ? 'Acertou · 1 ponto' : 'Errou · 0 ponto'}</strong></p><p>Sua resposta: ${escapeHtml(q.options[q.selected])}</p><p><strong>Resposta correta:</strong> ${escapeHtml(q.options[q.correct])}</p><p class="muted">${escapeHtml(q.explanation)}</p></article>`).join('')}`;
+    $('#workQuizResult').innerHTML = `<div class="work-score"><span>Trabalho ${escapeHtml(a.work.id)} · ${escapeHtml(currentUser.name)}</span><strong>Nota ${a.score}/${a.total}</strong><p>${simulation ? 'Resultado da simulação · Não salvo.' : `Resultado salvo em ${workDate(a.submittedAt)}.`}</p></div><div class="work-actions"><button class="primary" ${simulation ? 'data-restart-simulation' : `data-start-work="${escapeHtml(a.assignmentId)}"`}>Refazer com questões embaralhadas</button><button class="secondary" data-page="${simulation ? 'workManagement' : 'works'}">${simulation ? 'Voltar à gestão' : 'Voltar aos trabalhos'}</button></div><h2 class="section-title" style="margin-top:28px">Gabarito comentado</h2>${a.questions.map((q, i) => `<article class="work-review ${q.selected === q.correct ? 'correct' : 'incorrect'}"><h3>${i + 1}. ${escapeHtml(q.prompt)}</h3><p><strong>${q.selected === q.correct ? 'Acertou · 1 ponto' : 'Errou · 0 ponto'}</strong></p><p>Sua resposta: ${escapeHtml(q.options[q.selected])}</p><p><strong>Resposta correta:</strong> ${escapeHtml(q.options[q.correct])}</p><p class="muted">${escapeHtml(q.explanation)}</p></article>`).join('')}`;
     return;
   }
   $('#workQuizQuestions').innerHTML = a.questions.map((q, i) => `<fieldset class="work-question"><legend>${i + 1}. ${escapeHtml(q.prompt)} <span class="muted">(1 ponto)</span></legend>${q.options.map((option, index) => `<label class="option"><input type="radio" name="${escapeHtml(q.id)}" value="${index}" required> ${escapeHtml(option)}</label>`).join('')}</fieldset>`).join('');
@@ -196,7 +260,9 @@ $('#workQuizForm').addEventListener('submit', async event => {
   $('#submitWorkButton').disabled = true;
   $('#workQuizFeedback').innerHTML = '';
   try {
-    const result = await workApi('/api/assignments/attempts', 'PATCH', { attemptId, answers });
+    const result = activeWorkAttempt.simulation
+      ? await simulatedResult(activeWorkAttempt, workSimulationDefinition, answers)
+      : await workApi('/api/assignments/attempts', 'PATCH', { attemptId, answers });
     if (currentUser?.id !== userId || activeWorkAttempt?.id !== attemptId) return;
     activeWorkAttempt = result;
     renderWorkAttempt();
@@ -211,6 +277,10 @@ document.addEventListener('click', event => {
     selectedPerformanceStudent = performanceButton.dataset.performanceStudent;
     show('performance');
   }
+  const simulation = event.target.closest('[data-simulate-work]');
+  if (simulation) openWorkSimulation(simulation);
+  const repeatSimulation = event.target.closest('[data-restart-simulation]');
+  if (repeatSimulation) openWorkSimulation(repeatSimulation, true);
   const start = event.target.closest('[data-start-work]');
   if (start) openWork(start);
   const review = event.target.closest('[data-work-result]');

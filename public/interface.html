@@ -622,11 +622,12 @@
 
         <section id="workQuiz" class="page">
           <div class="intro">
-            <button class="back-link" data-page="works">← Meus trabalhos</button>
+            <button class="back-link" id="workQuizBack" data-page="works">← Meus trabalhos</button>
             <div class="eyebrow" id="workQuizMeta"></div>
             <h1 class="heading" id="workQuizTitle">Trabalho</h1>
             <p class="muted" id="workQuizDescription"></p>
           </div>
+          <div id="workSimulationNotice" class="feedback hidden" role="status" style="margin-bottom:20px">Simulação do professor · Respostas e nota não são salvas nem aparecem no desempenho dos alunos.</div>
           <div id="workQuizResult" aria-live="polite"></div>
           <form id="workQuizForm" class="module-card quiz">
             <div id="workQuizQuestions"></div>

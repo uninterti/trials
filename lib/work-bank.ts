@@ -28,23 +28,5 @@ export function publicWork(work: { id: string; courseId: string; courseTitle: st
   return { id: work.id, courseId: work.courseId, courseTitle: work.courseTitle, lessonTitle: work.lessonTitle, title: work.title, version: work.version, level: work.level, questionCount: work.questions.length, total: work.questions.length };
 }
 
-export function shuffledQuestions(questions: WorkQuestion[], previousIds: string[] = []) {
-  const shuffled = [...questions];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  // Ensure a retake never has exactly the preceding question order.
-  if (shuffled.length > 1 && shuffled.every((q, i) => q.id === previousIds[i])) {
-    shuffled.push(shuffled.shift()!);
-  }
-  return shuffled;
-}
-
-export function gradeAnswers(questions: WorkQuestion[], answers: unknown) {
-  if (!answers || typeof answers !== "object" || Array.isArray(answers)) return null;
-  const values = answers as Record<string, unknown>;
-  if (Object.keys(values).length !== questions.length) return null;
-  if (!questions.every(q => Object.hasOwn(values, q.id) && Number.isInteger(values[q.id]) && Number(values[q.id]) >= 0 && Number(values[q.id]) < q.options.length)) return null;
-  return questions.reduce((score, q) => score + Number(values[q.id] === q.correct), 0);
-}
+// Shared by real attempts and the browser-only teacher simulator.
+export { shuffledQuestions, gradeAnswers } from "../public/work-engine.js";

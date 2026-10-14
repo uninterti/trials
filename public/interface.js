@@ -203,11 +203,13 @@ function show(page) {
     page = 'dashboard';
   }
 
-  if (['works', 'workQuiz'].includes(page) && currentUser?.role !== 'aluno') page = 'performance';
-  if (page === 'workQuiz' && !activeWorkAttempt) page = 'works';
+  if (page === 'works' && currentUser?.role !== 'aluno') page = 'performance';
+  if (page === 'workQuiz' && currentUser?.role !== 'aluno' && !(currentUser?.role === 'professor' && activeWorkAttempt?.simulation)) page = 'workManagement';
+  if (page === 'workQuiz' && !activeWorkAttempt) page = currentUser?.role === 'professor' ? 'workManagement' : 'works';
+  if (page !== 'workQuiz') clearWorkSimulation();
   if (!document.getElementById(page)?.classList.contains('page')) page = 'dashboard';
   document.querySelectorAll('.page').forEach((el) => el.classList.toggle('active', el.id === page));
-  document.querySelectorAll('.nav button').forEach((el) => el.classList.toggle('active', el.dataset.page === page || (page === 'word' && el.dataset.page === 'courses') || (page === 'performance' && el.dataset.page === 'students') || (page === 'workQuiz' && el.dataset.page === 'works')));
+  document.querySelectorAll('.nav button').forEach((el) => el.classList.toggle('active', el.dataset.page === page || (page === 'word' && el.dataset.page === 'courses') || (page === 'performance' && el.dataset.page === 'students') || (page === 'workQuiz' && el.dataset.page === (activeWorkAttempt?.simulation ? 'workManagement' : 'works'))));
   
   const crumbs = {
     dashboard: 'Dashboard',
@@ -218,7 +220,7 @@ function show(page) {
     students: 'Painel do Professor / Alunos',
     performance: 'Alunos / Desempenho',
     works: 'Meus trabalhos',
-    workQuiz: 'Meus trabalhos / Responder',
+    workQuiz: activeWorkAttempt?.simulation ? 'Gestão de trabalhos / Simulação' : 'Meus trabalhos / Responder',
     workManagement: 'Professor / Gestão de trabalhos',
   };
   $('#crumb').textContent = crumbs[page] || 'Dashboard';
