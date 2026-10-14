@@ -49,6 +49,7 @@ function applyUserUI() {
   if (!currentUser) return;
   const isProf = currentUser.role === 'professor';
   $('#navWorks').classList.toggle('hidden', isProf);
+  $('#navWorkManagement').classList.toggle('hidden', !isProf);
   
   $('#topbarUserName').textContent = currentUser.name || (isProf ? 'Professor' : 'Aluno');
   $('#topbarAvatar').textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
@@ -198,7 +199,7 @@ function selectLesson(n) {
 
 function show(page) {
   // Protect students area from non-professors
-  if (['students', 'performance'].includes(page) && currentUser?.role !== 'professor') {
+  if (['students', 'performance', 'workManagement'].includes(page) && currentUser?.role !== 'professor') {
     page = 'dashboard';
   }
 
@@ -218,6 +219,7 @@ function show(page) {
     performance: 'Alunos / Desempenho',
     works: 'Meus trabalhos',
     workQuiz: 'Meus trabalhos / Responder',
+    workManagement: 'Professor / Gestão de trabalhos',
   };
   $('#crumb').textContent = crumbs[page] || 'Dashboard';
   location.hash = page;
@@ -227,6 +229,7 @@ function show(page) {
   if (page === 'students') loadStudents();
   if (page === 'performance') loadPerformanceArea();
   if (page === 'works') loadStudentWorks();
+  if (page === 'workManagement') loadWorkManagement();
 }
 
 async function openLesson() {

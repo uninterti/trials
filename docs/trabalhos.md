@@ -12,11 +12,12 @@
 
 A nota atual é a da última tentativa concluída, inclusive se for inferior à anterior. A média considera apenas trabalhos com nota, usando a nota atual de cada trabalho. Uma nova tentativa em andamento preserva a última nota concluída até ser entregue. Respostas ainda não entregues não são salvas; a tela informa isso. Excluir o cadastro do aluno também remove suas liberações e tentativas, conforme a confirmação de exclusão.
 
-A revisão geral de três perguntas em **Avaliações** permanece separada dos trabalhos individuais. Nesta primeira versão, somente **Word · Aula 1 · W-A1** está disponível; W-A2 é uma expansão futura.
+A revisão geral de três perguntas em **Avaliações** permanece separada dos trabalhos individuais. O **W-A1** continua disponível como conteúdo inicial. O professor também pode cadastrar outros trabalhos na [gestão de trabalhos e questões](work-management.md).
 
 ## Implementação
 
-- `lib/work-bank.ts`: definição do W-A1, dez questões, alternativas, respostas e explicações; uso somente no servidor.
+- `lib/work-bank.ts`: conteúdo original do W-A1 para compatibilidade histórica, correção e embaralhamento; uso somente no servidor.
+- `lib/work-catalog.ts`: cadastro persistente de questões e trabalhos e leitura do conteúdo de cada liberação.
 - `lib/works.ts`: autenticação com consulta da conta atual, autorização, resumos e projeção pública das tentativas.
 - `app/api/assignments/route.ts`: consulta de liberações e liberação pelo professor.
 - `app/api/assignments/attempts/route.ts`: iniciar/retomar (`POST`), entregar (`PATCH`) e consultar (`GET`) uma tentativa do aluno autenticado.
@@ -27,11 +28,11 @@ A revisão geral de três perguntas em **Avaliações** permanece separada dos t
 
 A API não recebe a nota como fonte de verdade. Corrige por ID da questão, valida todas as alternativas e devolve o gabarito somente após a conclusão. Reenvios de uma tentativa concluída retornam o resultado já salvo. Cada tentativa guarda uma cópia das questões para preservar sua correção mesmo se o banco de questões evoluir.
 
-Para adicionar W-A2, incluir uma definição com ID próprio, curso, aula, versão e dez questões revisadas. Não remover definições de trabalhos que já tenham liberações. A interface de liberação e o relatório utilizam esses metadados automaticamente.
+Para adicionar W-A2 ou outro trabalho, use **Gestão de trabalhos → Novo trabalho**. Escolha curso e nível e selecione dez questões do banco. Cada liberação nova guarda uma cópia do trabalho; edições posteriores valem apenas para novas liberações. As liberações antigas do W-A1 continuam usando seu conteúdo original.
 
 ## Migração e validação
 
-A migração `drizzle/0002_work_assignments.sql` cria as duas tabelas e reconcilia a tabela `users` com o snapshot do Drizzle, usando `IF NOT EXISTS` somente na tabela e nos índices legados de usuários. O arquivo preexistente `0002_users.sql` e as migrações anteriores foram preservados. A migração nova foi aplicada uma vez ao banco local; não deve ser reaplicada manualmente. Na publicação pelo Sites, as migrações são incluídas no pacote.
+A migração `drizzle/0002_work_assignments.sql` cria as duas tabelas e reconcilia a tabela `users` com o snapshot do Drizzle, usando `IF NOT EXISTS` somente na tabela e nos índices legados de usuários. O arquivo preexistente `0002_users.sql` e as migrações anteriores foram preservados. A migração nova foi aplicada uma vez ao banco local; não deve ser reaplicada manualmente. Na publicação pelo Sites, as migrações são incluídas no pacote. O ambiente `professor.toniagne.workers.dev` usa o D1 `professor-toni` da conta Cloudflare do professor: nele, as migrações pendentes devem ser aplicadas explicitamente antes do deploy. A migração `0002_work_assignments.sql` já foi aplicada nesse ambiente.
 
 Comandos de validação:
 

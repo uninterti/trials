@@ -1,10 +1,10 @@
 import { database } from "@/db/content";
 import { getSessionUser, type AuthUser } from "@/lib/auth";
-import { publicWork, workDefinitions, type WorkQuestion } from "@/lib/work-bank";
+import { publicWork, type WorkQuestion } from "@/lib/work-bank";
 
-export class WorkError extends Error {
-  constructor(message: string, public status = 400) { super(message); }
-}
+import { WorkError } from "@/lib/work-error";
+import { releasedDefinition } from "@/lib/work-catalog";
+export { WorkError } from "@/lib/work-error";
 export function json(data: unknown, status = 200) {
   return Response.json(data, { status, headers: { "Cache-Control": "private, no-store" } });
 }
@@ -39,11 +39,6 @@ export async function student(id: string) {
   if (!result) throw new WorkError("Aluno não encontrado.", 404);
   return result;
 }
-export function definition(id: string) {
-  const work = workDefinitions.find(w => w.id === id);
-  if (!work) throw new WorkError("Trabalho não disponível.", 404);
-  return work;
-}
 export async function studentAssignments(studentId: string) {
   const rows = await database().prepare(`SELECT a.*,
     (SELECT COUNT(*) FROM work_attempts t WHERE t.assignment_id=a.id AND t.submitted_at IS NOT NULL) AS attempt_count,
@@ -52,16 +47,16 @@ export async function studentAssignments(studentId: string) {
     (SELECT submitted_at FROM work_attempts t WHERE t.assignment_id=a.id AND t.submitted_at IS NOT NULL ORDER BY submitted_at DESC, rowid DESC LIMIT 1) AS latest_at,
     (SELECT id FROM work_attempts t WHERE t.assignment_id=a.id AND t.submitted_at IS NULL LIMIT 1) AS active_attempt_id,
     (SELECT id FROM work_attempts t WHERE t.assignment_id=a.id AND t.submitted_at IS NOT NULL ORDER BY submitted_at DESC, rowid DESC LIMIT 1) AS latest_attempt_id
-    FROM work_assignments a WHERE a.student_id=? ORDER BY a.released_at, a.id`).bind(studentId).all<{id: string; work_id: string; latest_score: number | null; attempt_count: number}>();
-  return rows.results.map(row => ({ ...row, work: publicWork(definition(row.work_id)) }));
+    FROM work_assignments a WHERE a.student_id=? ORDER BY a.released_at, a.id`).bind(studentId).all<{id: string; work_id: string; latest_score: number | null; attempt_count: number; definition_snapshot: string | null}>();
+  return rows.results.map(({ definition_snapshot, ...row }) => ({ ...row, work: publicWork(releasedDefinition(row.work_id, definition_snapshot)) }));
 }
 export type Attempt = {
   id: string; assignment_id: string; work_id: string; student_id: string;
   questions: string; answers: string | null; score: number | null; total: number;
-  started_at: string; submitted_at: string | null;
+  started_at: string; submitted_at: string | null; definition_snapshot: string | null;
 };
 export async function ownedAttempt(id: string, studentId: string) {
-  const attempt = await database().prepare(`SELECT t.*, a.work_id, a.student_id FROM work_attempts t
+  const attempt = await database().prepare(`SELECT t.*, a.work_id, a.student_id, a.definition_snapshot FROM work_attempts t
     JOIN work_assignments a ON a.id=t.assignment_id WHERE t.id=? AND a.student_id=?`)
     .bind(id, studentId).first<Attempt>();
   if (!attempt) throw new WorkError("Tentativa não encontrada.", 404);
@@ -72,7 +67,7 @@ export function attemptView(attempt: Attempt) {
   const answers = attempt.answers ? JSON.parse(attempt.answers) as Record<string, number> : null;
   return {
     id: attempt.id, assignmentId: attempt.assignment_id,
-    work: publicWork(definition(attempt.work_id)), total: attempt.total,
+    work: publicWork(releasedDefinition(attempt.work_id, attempt.definition_snapshot)), total: attempt.total,
     score: attempt.score, submittedAt: attempt.submitted_at,
     questions: questions.map(q => attempt.submitted_at
       ? { ...q, selected: answers?.[q.id] }

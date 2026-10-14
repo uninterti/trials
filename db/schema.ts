@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text, index, uniqueIndex, primaryKey } from "drizzle-orm/sqlite-core";
 
 export const courses = sqliteTable("courses", {
   id: text("id").primaryKey(),
@@ -64,6 +64,7 @@ export const workAssignments = sqliteTable("work_assignments", {
   studentId: text("student_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   releasedBy: text("released_by").references(() => users.id, { onDelete: "set null" }),
   releasedAt: text("released_at").notNull(),
+  definitionSnapshot: text("definition_snapshot"),
 }, (table) => [uniqueIndex("idx_work_student").on(table.workId, table.studentId)]);
 
 export const workAttempts = sqliteTable("work_attempts", {
@@ -79,4 +80,39 @@ export const workAttempts = sqliteTable("work_attempts", {
 }, (table) => [
   index("idx_work_attempts_assignment").on(table.assignmentId, table.submittedAt),
   uniqueIndex("idx_work_active_attempt").on(table.assignmentId).where(sql`${table.submittedAt} IS NULL`),
+]);
+
+
+export const questionBank = sqliteTable("question_bank", {
+  id: text("id").primaryKey(),
+  courseId: text("course_id").notNull().references(() => courses.id),
+  level: text("level").notNull(),
+  prompt: text("prompt").notNull(),
+  options: text("options").notNull(),
+  correct: integer("correct").notNull(),
+  explanation: text("explanation").notNull(),
+  revision: text("revision").notNull(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [index("idx_question_bank_course_level").on(table.courseId, table.level)]);
+
+export const managedWorks = sqliteTable("managed_works", {
+  id: text("id").primaryKey(),
+  courseId: text("course_id").notNull().references(() => courses.id),
+  level: text("level").notNull(),
+  title: text("title").notNull(),
+  lessonTitle: text("lesson_title").notNull(),
+  version: integer("version").notNull(),
+  revision: text("revision").notNull(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [index("idx_managed_works_course_level").on(table.courseId, table.level)]);
+
+export const managedWorkQuestions = sqliteTable("managed_work_questions", {
+  workId: text("work_id").notNull().references(() => managedWorks.id, { onDelete: "cascade" }),
+  questionId: text("question_id").notNull().references(() => questionBank.id),
+  position: integer("position").notNull(),
+}, (table) => [
+  primaryKey({ columns: [table.workId, table.questionId] }),
+  uniqueIndex("idx_managed_work_question_position").on(table.workId, table.position),
 ]);

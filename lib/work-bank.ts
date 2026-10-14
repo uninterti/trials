@@ -24,9 +24,8 @@ export const workDefinitions = [{
   ] satisfies WorkQuestion[],
 }];
 
-export function publicWork(work: typeof workDefinitions[number]) {
-  const { questions, ...metadata } = work;
-  return { ...metadata, questionCount: questions.length, total: questions.length };
+export function publicWork(work: { id: string; courseId: string; courseTitle: string; lessonTitle: string; title: string; version: number; level?: string; questions: WorkQuestion[] }) {
+  return { id: work.id, courseId: work.courseId, courseTitle: work.courseTitle, lessonTitle: work.lessonTitle, title: work.title, version: work.version, level: work.level, questionCount: work.questions.length, total: work.questions.length };
 }
 
 export function shuffledQuestions(questions: WorkQuestion[], previousIds: string[] = []) {

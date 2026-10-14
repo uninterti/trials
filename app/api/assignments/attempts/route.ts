@@ -1,6 +1,7 @@
+import { releasedDefinition } from "@/lib/work-catalog";
 import { database } from "@/db/content";
 import { gradeAnswers, shuffledQuestions, type WorkQuestion } from "@/lib/work-bank";
-import { actor, attemptView, body, definition, fail, json, ownedAttempt, stringId, WorkError } from "@/lib/works";
+import { actor, attemptView, body, fail, json, ownedAttempt, stringId, WorkError } from "@/lib/works";
 
 export async function GET(request: Request) {
   try {
@@ -14,10 +15,10 @@ export async function POST(request: Request) {
     const user = await actor(request, "aluno");
     const data = await body(request);
     const db = database();
-    const assignment = await db.prepare("SELECT id,work_id FROM work_assignments WHERE id=? AND student_id=?")
-      .bind(stringId(data.assignmentId), user.id).first<{id: string; work_id: string}>();
+    const assignment = await db.prepare("SELECT id,work_id,definition_snapshot FROM work_assignments WHERE id=? AND student_id=?")
+      .bind(stringId(data.assignmentId), user.id).first<{id: string; work_id: string; definition_snapshot: string | null}>();
     if (!assignment) throw new WorkError("Este trabalho não está liberado para você.", 404);
-    const work = definition(assignment.work_id);
+    const work = releasedDefinition(assignment.work_id, assignment.definition_snapshot);
     const previous = await db.prepare("SELECT questions FROM work_attempts WHERE assignment_id=? AND submitted_at IS NOT NULL ORDER BY submitted_at DESC, rowid DESC LIMIT 1")
       .bind(assignment.id).first<{questions: string}>();
     const previousIds = previous ? (JSON.parse(previous.questions) as WorkQuestion[]).map(q => q.id) : [];

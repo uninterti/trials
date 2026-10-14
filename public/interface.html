@@ -252,6 +252,41 @@
     .work-history summary { cursor:pointer; font-weight:700; padding:14px 0; }
     button:disabled { opacity:.6; cursor:not-allowed; }
     @media(max-width:640px) { .work-summary { grid-template-columns:1fr; } .work-actions button,.work-release button { width:100%; } }
+    .management-tabs { display:flex; gap:8px; border-bottom:1px solid #dce3ee; margin-bottom:22px; }
+    .management-tabs button { border:0; border-bottom:3px solid transparent; background:transparent; padding:14px 20px; color:#637493; font-weight:700; }
+    .management-tabs button[aria-selected="true"] { color:#243d77; border-bottom-color:#345bbe; }
+    .management-tabs span { background:#e6edf9; border-radius:20px; padding:2px 8px; margin-left:6px; font-size:12px; }
+    .management-filters { display:grid; grid-template-columns:1fr 1fr 2fr; gap:16px; margin-bottom:24px; }
+    .management-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:22px 0; }
+    .management-toolbar h2,.management-toolbar h3 { margin:0; }
+    .management-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:20px 0; }
+    .management-editor { margin-bottom:26px; border:1px solid #b9caeb; }
+    .management-editor textarea,.answer-row > input { width:100%; padding:12px 14px; border:1px solid #d8e1f0; border-radius:9px; font:inherit; color:#243d77; background:white; }
+    .management-editor textarea { resize:vertical; min-height:74px; }
+    .management-editor .form-col { min-width:0; }
+    .management-editor .form-col input,.management-editor .form-col select { min-width:0; }
+    .answer-editor { border:0; padding:0; margin:24px 0; min-width:0; }
+    .answer-editor legend { font-weight:700; font-size:14px; margin-bottom:12px; }
+    .answer-row { display:flex; align-items:center; gap:12px; margin:10px 0; }
+    .answer-row label { display:flex; align-items:center; gap:8px; min-width:50px; }
+    .answer-row input[type="radio"] { width:18px; height:18px; }
+    .question-picker { max-height:410px; overflow-y:auto; border:1px solid #dde5f0; border-radius:10px; margin:16px 0; }
+    .picker-question { display:flex; align-items:flex-start; gap:12px; padding:16px; border-bottom:1px solid #e8edf5; cursor:pointer; line-height:1.6; }
+    .picker-question:has(input:checked) { background:#edf3ff; }
+    .picker-question input { margin-top:5px; width:18px; height:18px; flex-shrink:0; }
+    .picker-question small { display:block; color:#637493; }
+    .selected-questions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .selected-questions button { border:1px solid #d2ddf0; background:#edf3ff; color:#243d77; padding:7px 10px; border-radius:8px; max-width:100%; text-align:left; overflow-wrap:anywhere; }
+    .question-bank-card { margin-bottom:14px; }
+    .question-bank-card summary { font-weight:600; line-height:1.7; cursor:pointer; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .question-bank-card .work-actions { margin-bottom:14px; }
+    .question-bank-card ol { line-height:1.8; padding-left:24px; overflow-wrap:anywhere; }
+    .question-bank-card .correct-option { color:#17643e; font-weight:700; }
+    .level-facil { background:#eaf7f0; color:#17643e; }
+    .level-intermediario { background:#fff4dd; color:#815817; }
+    .level-dificil { background:#fbeae8; color:#913f32; }
+    .management-editor :focus-visible,.management-tabs :focus-visible { outline:3px solid #849eda; outline-offset:3px; }
+    @media(max-width:640px) { .management-grid,.management-filters { grid-template-columns:1fr; } .management-toolbar > button { width:100%; } .management-tabs button { flex:1; padding:14px 8px; } }
   </style>
 </head>
 <body>
@@ -309,6 +344,10 @@
           <button data-page="works" id="navWorks" class="hidden">
             <svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
             <span>Meus trabalhos</span>
+          </button>
+          <button data-page="workManagement" id="navWorkManagement" class="hidden">
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
+            <span>Gestão de trabalhos</span>
           </button>
           <!-- Menu Exclusivo do Professor -->
           <button data-page="students" id="navStudents" class="hidden">
@@ -566,7 +605,7 @@
               <div class="form-col"><label for="releaseWork">Trabalho disponível</label><select id="releaseWork" required disabled><option value="">Selecione um aluno primeiro</option></select></div>
               <button type="submit" class="primary" id="releaseWorkButton" disabled>Liberar trabalho</button>
             </form>
-            <p class="muted work-help">Começamos pelo Word · Aula 1 · W-A1: 10 questões, 1 ponto cada. Novos trabalhos aparecerão aqui quando estiverem disponíveis.</p>
+            <p class="muted work-help">Trabalhos com 10 questões ficam disponíveis para liberação. Cada questão vale 1 ponto. <button class="back-link" style="margin:0" data-page="workManagement">Gerenciar trabalhos e questões →</button></p>
             <div id="releaseWorkFeedback" role="status" aria-live="polite"></div>
           </div>
           <div id="performanceReport" aria-live="polite"><p class="empty-state">Selecione um aluno para visualizar seu desempenho.</p></div>
@@ -595,11 +634,78 @@
             <div id="workQuizFeedback" role="alert"></div>
           </form>
         </section>
+        <section id="workManagement" class="page">
+          <div class="intro">
+            <div class="eyebrow">Painel do professor</div>
+            <h1 class="heading">Gestão de trabalhos</h1>
+            <p class="muted">Crie seu banco de questões e monte trabalhos para Word, Excel e PowerPoint.</p>
+          </div>
+          <div class="management-tabs" role="tablist" aria-label="Gestão de conteúdo">
+            <button id="tabManagedWorks" role="tab" aria-controls="managedWorksPanel" aria-selected="true" data-management-tab="works">Trabalhos <span id="managedWorkCount">0</span></button>
+            <button id="tabBankQuestions" role="tab" aria-controls="bankQuestionsPanel" aria-selected="false" tabindex="-1" data-management-tab="questions">Questões <span id="bankQuestionCount">0</span></button>
+          </div>
+          <div id="managementFeedback" aria-live="polite"></div>
+          <div class="module-card management-filters">
+            <div class="form-col"><label for="managementCourse">Curso</label><select id="managementCourse"><option value="">Todos os cursos</option><option value="word">Word</option><option value="excel">Excel</option><option value="powerpoint">PowerPoint</option></select></div>
+            <div class="form-col"><label for="managementLevel">Nível</label><select id="managementLevel"><option value="">Todos os níveis</option><option value="facil">Fácil</option><option value="intermediario">Intermediário</option><option value="dificil">Difícil</option></select></div>
+            <div class="form-col"><label for="managementSearch">Buscar</label><input id="managementSearch" type="search" placeholder="Código, título ou pergunta…"></div>
+          </div>
+
+          <div id="managedWorksPanel" role="tabpanel" aria-labelledby="tabManagedWorks">
+            <div class="management-toolbar"><div><h2 class="section-title">Trabalhos cadastrados</h2><p class="muted work-help">Monte 10 questões do mesmo curso para liberar um trabalho.</p></div><button class="primary" id="newManagedWork" disabled>+ Novo trabalho</button></div>
+            <form id="managedWorkForm" class="module-card management-editor hidden">
+              <div class="management-toolbar"><h2 class="section-title" id="managedWorkEditorTitle">Novo trabalho</h2><button type="button" class="secondary" id="closeManagedWork">Cancelar</button></div>
+              <div class="management-grid">
+                <div class="form-col"><label for="managedWorkCode">Código do trabalho</label><input id="managedWorkCode" maxlength="30" placeholder="Ex.: W-A2" required pattern="[A-Za-z0-9][A-Za-z0-9-]{1,29}"></div>
+                <div class="form-col"><label for="managedWorkTitle">Título</label><input id="managedWorkTitle" maxlength="160" placeholder="Ex.: Formatação de documentos" required></div>
+                <div class="form-col"><label for="managedWorkCourse">Curso</label><select id="managedWorkCourse" required><option value="word">Word</option><option value="excel">Excel</option><option value="powerpoint">PowerPoint</option></select></div>
+                <div class="form-col"><label for="managedWorkLevel">Nível do trabalho</label><select id="managedWorkLevel" required><option value="facil">Fácil</option><option value="intermediario">Intermediário</option><option value="dificil">Difícil</option></select></div>
+                <div class="form-col"><label for="managedWorkLesson">Aula ou unidade (opcional)</label><input id="managedWorkLesson" maxlength="100" placeholder="Ex.: Aula 2"></div>
+              </div>
+              <div class="management-toolbar question-picker-heading"><div><h3>Questões do trabalho <span class="pill" id="selectedQuestionCount">0 / 10</span></h3><p class="muted work-help">Selecione questões do mesmo curso. Você pode combinar níveis.</p></div><button type="button" class="secondary" id="addQuestionFromWork">+ Cadastrar questão</button></div>
+              <div class="management-grid">
+                <div class="form-col"><label for="pickerLevel">Filtrar questões por nível</label><select id="pickerLevel"><option value="">Todos os níveis</option><option value="facil">Fácil</option><option value="intermediario">Intermediário</option><option value="dificil">Difícil</option></select></div>
+                <div class="form-col"><label for="pickerSearch">Buscar pergunta</label><input id="pickerSearch" type="search" placeholder="Digite parte da pergunta…"></div>
+              </div>
+              <div id="selectedQuestionList" class="selected-questions" aria-live="polite"></div>
+              <div id="workQuestionPicker" class="question-picker"></div>
+              <p class="muted work-help" id="workReadiness">Você pode salvar um rascunho e completar as questões depois.</p>
+              <p class="muted work-help">Alterações valem para novas liberações. Trabalhos já recebidos pelos alunos e suas notas são preservados.</p>
+              <button type="submit" class="primary" id="saveManagedWork">Salvar trabalho</button>
+              <div id="managedWorkFeedback" aria-live="polite"></div>
+            </form>
+            <div id="managedWorksList" aria-live="polite"></div>
+          </div>
+
+          <div id="bankQuestionsPanel" role="tabpanel" aria-labelledby="tabBankQuestions" class="hidden">
+            <div class="management-toolbar"><div><h2 class="section-title">Banco de questões</h2><p class="muted work-help">Reutilize questões em diferentes trabalhos do mesmo curso.</p></div><button class="primary" id="newBankQuestion" disabled>+ Nova questão</button></div>
+            <form id="bankQuestionForm" class="module-card management-editor hidden">
+              <div class="management-toolbar"><h2 class="section-title" id="bankQuestionEditorTitle">Nova questão</h2><button type="button" class="secondary" id="closeBankQuestion">Cancelar</button></div>
+              <div class="management-grid">
+                <div class="form-col"><label for="bankQuestionCourse">Curso</label><select id="bankQuestionCourse" required><option value="word">Word</option><option value="excel">Excel</option><option value="powerpoint">PowerPoint</option></select></div>
+                <div class="form-col"><label for="bankQuestionLevel">Nível</label><select id="bankQuestionLevel" required><option value="facil">Fácil</option><option value="intermediario">Intermediário</option><option value="dificil">Difícil</option></select></div>
+              </div>
+              <div class="form-col"><label for="bankQuestionPrompt">Pergunta</label><textarea id="bankQuestionPrompt" rows="3" maxlength="2000" placeholder="Digite o enunciado da questão…" required></textarea></div>
+              <fieldset class="answer-editor"><legend>Quatro alternativas — marque a resposta correta</legend>
+                <div class="answer-row"><label><input type="radio" name="bankCorrect" value="0" aria-label="Alternativa A é a correta" required> A</label><input id="bankOption0" aria-label="Texto da alternativa A" maxlength="500" required></div>
+                <div class="answer-row"><label><input type="radio" name="bankCorrect" value="1" aria-label="Alternativa B é a correta" required> B</label><input id="bankOption1" aria-label="Texto da alternativa B" maxlength="500" required></div>
+                <div class="answer-row"><label><input type="radio" name="bankCorrect" value="2" aria-label="Alternativa C é a correta" required> C</label><input id="bankOption2" aria-label="Texto da alternativa C" maxlength="500" required></div>
+                <div class="answer-row"><label><input type="radio" name="bankCorrect" value="3" aria-label="Alternativa D é a correta" required> D</label><input id="bankOption3" aria-label="Texto da alternativa D" maxlength="500" required></div>
+              </fieldset>
+              <div class="form-col"><label for="bankQuestionExplanation">Explicação do gabarito (opcional)</label><textarea id="bankQuestionExplanation" rows="2" maxlength="2000" placeholder="Explique por que essa alternativa está correta…"></textarea></div>
+              <p class="muted work-help">O gabarito é visível ao professor. O aluno só o vê depois de entregar o trabalho.</p>
+              <button type="submit" class="primary" id="saveBankQuestion">Salvar questão</button>
+              <div id="bankQuestionFeedback" aria-live="polite"></div>
+            </form>
+            <div id="bankQuestionsList" aria-live="polite"></div>
+          </div>
+        </section>
       </main>
     </div>
   </div>
 
   <script src="/interface.js" defer></script>
   <script src="/works.js" defer></script>
+  <script src="/work-management.js" defer></script>
 </body>
 </html>

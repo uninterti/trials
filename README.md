@@ -2,6 +2,7 @@
 
 Ambiente de aprendizagem com cursos, aulas, avaliações e gestão de alunos.
 
+- [Gestão de trabalhos e banco de questões](docs/work-management.md): cadastro por curso e nível, quatro alternativas e montagem de trabalhos.
 - [Trabalhos individuais e relatório de desempenho](docs/trabalhos.md): liberação por aluno, W-A1 de Word com 10 questões, notas e histórico de tentativas.
 - [Spec de compreensão das tarefas no chat](docs/specs/compreensao-tarefas-chat.md).
 

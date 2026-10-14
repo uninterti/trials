@@ -20,6 +20,7 @@ const workGrade = value => value === null || value === undefined ? '—' : `${va
 const workStatus = item => item.active_attempt_id ? 'Em andamento' : item.attempt_count ? 'Concluído' : 'Não iniciado';
 
 function resetWorkUI() {
+  resetWorkManagement();
   workRequestEpoch++;
   studentWorksEpoch++;
   activeWorkAttempt = null;
